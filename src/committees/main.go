@@ -231,5 +231,6 @@ func main() {
 
 	http.HandleFunc("/data/", data)
 	http.HandleFunc("/", index)
+    log.Printf("started")
 	log.Fatal(http.ListenAndServe(p, nil))
 }
