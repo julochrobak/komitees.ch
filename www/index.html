@@ -12,6 +12,10 @@
             text-align: right;
         }
 
+        td.link {
+            text-align: center;
+        }
+
         td {
             padding: 5px 5px 5px 5px;
         }
@@ -19,38 +23,39 @@
         .link {
             width: 20px;
         }
-        center {
-            margin-top: 100px;
+        table {
+            width: 100%;
         }
     </style>
     <body>
         <center>
             <form method="post">
-                <input type="text" name="query" size=80>
+                <input type="text" name="query" size=80 placeholder="Partei/Kanton/Politiker(in)">
                 <input type="submit" value="Submit">
             </form>
         </center>
-        {{ if . }}
+        {{ if .Items }}
+        <center><h4>{{ .Overall }} aktive Komitees durchgesucht</h4></center>
         <table>
             <tr>
                 <th></th>
                 <th class="name">Name</th>
                 <th class="count">Mitglieder</th>
                 <th class="count">Übereinstimmungen</th>
-                <th class="ling">Link</th>
+                <th class="link">Link</th>
             </tr>
-            {{range .}}
-                <tr>
-                    <th>{{ .Index }}</td>
-                    <td>{{ .CommitteeName }}</td>
-                    <td class="count">{{ .Members }}</td>
-                    <td class="count">{{ .Match }}</td>
-                    <td><a href="{{ .Url }}">Detail</a></td>
-                </tr>
+            {{range .Items}}
+            <tr>
+                <th>{{ .Index }}</td>
+                <td>{{ .CommitteeName }}</td>
+                <td class="count">{{ .Members }}</td>
+                <td class="count">{{ .Match }}</td>
+                <td class="link"><a href="{{ .Url }}">Detail</a></td>
+            </tr>
             {{end}}
-            </table>
+        </table>
         {{else}}
-        <center><strong>no rows</strong></center>
+        <center><h4>kein Ergebnis</h4></center>
         {{end}}
     </body>
 </html>

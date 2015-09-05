@@ -16,11 +16,12 @@ import (
 )
 
 type Member struct {
-	Id        int    `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Canton    string `json:"canton"`
-	Party     string `json:"party"`
+	Id         int    `json:"id"`
+	FirstName  string `json:"firstName"`
+	LastName   string `json:"lastName"`
+	Canton     string `json:"canton"`
+	CantonName string `json:"cantonName"`
+	Party      string `json:"party"`
 }
 
 type CommitteeDetails struct {
@@ -118,6 +119,8 @@ func match(val string, pat string) bool {
 }
 
 func generate(w http.ResponseWriter, query string) {
+	query = strings.Trim(query, " ")
+
 	tmpl, err := ioutil.ReadFile("www/index.html")
 	if err != nil {
 		http.Error(w, "failed to read index.html", http.StatusInternalServerError)
@@ -131,7 +134,7 @@ func generate(w http.ResponseWriter, query string) {
 		return
 	}
 
-	type Result struct {
+	type Item struct {
 		Index         int
 		Id            int
 		CommitteeName string
@@ -139,7 +142,12 @@ func generate(w http.ResponseWriter, query string) {
 		Match         int
 		Url           string
 	}
-	data := make([]Result, 0)
+	type Result struct {
+		Overall int
+		Items   []Item
+	}
+
+	data := Result{Overall: len(committees), Items: make([]Item, 0)}
 
 	if query != "" {
 		for _, c := range committees {
@@ -147,14 +155,14 @@ func generate(w http.ResponseWriter, query string) {
 
 			cnt := 0
 			for _, m := range d.Members {
-				if match(m.FirstName, query) || match(m.LastName, query) || match(m.Party, query) || match(m.Canton, query) {
+				if match(m.CantonName, query) || match(m.FirstName, query) || match(m.LastName, query) || match(m.Party, query) || match(m.Canton, query) {
 					cnt += 1
 				}
 			}
 
 			if cnt > 0 {
-				data = append(data, Result{
-					Index:         len(data) + 1,
+				data.Items = append(data.Items, Item{
+					Index:         len(data.Items) + 1,
 					Id:            c.Id,
 					CommitteeName: c.Name,
 					Members:       len(d.Members),
@@ -231,6 +239,6 @@ func main() {
 
 	http.HandleFunc("/data/", data)
 	http.HandleFunc("/", index)
-    log.Printf("started")
+	log.Printf("started")
 	log.Fatal(http.ListenAndServe(p, nil))
 }
