@@ -1,0 +1,56 @@
+<html>
+    <style>
+        .count {
+            width: 200px;
+        }
+
+        th {
+            text-align: center;
+        }
+
+        td.count {
+            text-align: right;
+        }
+
+        td {
+            padding: 5px 5px 5px 5px;
+        }
+
+        .link {
+            width: 20px;
+        }
+        center {
+            margin-top: 100px;
+        }
+    </style>
+    <body>
+        <center>
+            <form method="post">
+                <input type="text" name="query" size=80>
+                <input type="submit" value="Submit">
+            </form>
+        </center>
+        {{ if . }}
+        <table>
+            <tr>
+                <th></th>
+                <th class="name">Name</th>
+                <th class="count">Mitglieder</th>
+                <th class="count">Übereinstimmungen</th>
+                <th class="ling">Link</th>
+            </tr>
+            {{range .}}
+                <tr>
+                    <th>{{ .Index }}</td>
+                    <td>{{ .CommitteeName }}</td>
+                    <td class="count">{{ .Members }}</td>
+                    <td class="count">{{ .Match }}</td>
+                    <td><a href="{{ .Url }}">Detail</a></td>
+                </tr>
+            {{end}}
+            </table>
+        {{else}}
+        <center><strong>no rows</strong></center>
+        {{end}}
+    </body>
+</html>
