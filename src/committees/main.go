@@ -144,10 +144,17 @@ func generate(w http.ResponseWriter, query string) {
 	}
 	type Result struct {
 		Overall int
+		Query   string
+		Match   int
 		Items   []Item
 	}
 
-	data := Result{Overall: len(committees), Items: make([]Item, 0)}
+	data := Result{
+		Overall: len(committees),
+		Query:   query,
+		Match:   0,
+		Items:   make([]Item, 0),
+	}
 
 	if query != "" {
 		for _, c := range committees {
@@ -172,6 +179,8 @@ func generate(w http.ResponseWriter, query string) {
 			}
 		}
 	}
+
+	data.Match = len(data.Items)
 
 	err = t.Execute(w, data)
 	if err != nil {

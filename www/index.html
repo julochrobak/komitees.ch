@@ -1,30 +1,34 @@
 <html>
     <style>
-        .count {
-            width: 200px;
-        }
-
-        th {
-            text-align: center;
-        }
-
         td.count {
             text-align: right;
+            width: 200px;
         }
 
         td.link {
             text-align: center;
+            width: 20px;
         }
 
-        td {
+        table {
+            width: 100%;
+            border: solid 1px #EFEFEF;
+            border-collapse: collapse;
+        }
+        
+        table td {
+            border: solid 1px #EFEFEF;
+            padding: 5px 5px 5px 5px;
+        }
+        
+        table th {
+            background-color: #EFEFEF;
+            border: solid 1px #EFEFEF;
             padding: 5px 5px 5px 5px;
         }
 
-        .link {
-            width: 20px;
-        }
-        table {
-            width: 100%;
+        form {
+            margin: 30px; 0px; 10px; 0px;
         }
     </style>
     <body>
@@ -35,7 +39,7 @@
             </form>
         </center>
         {{ if .Items }}
-        <center><h4>{{ .Overall }} aktive Komitees durchgesucht</h4></center>
+        <center><h4>{{ .Overall }} aktive Komitees für <q>{{ .Query }}</q> durchgesucht, {{ .Match }} gefunden</h4></center>
         <table>
             <tr>
                 <th></th>
