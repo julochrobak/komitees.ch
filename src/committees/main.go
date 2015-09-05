@@ -5,14 +5,14 @@ package main
 
 import (
 	"encoding/json"
-    "flag"
+	"flag"
 	"fmt"
 	"html/template"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-    "strings"
+	"strings"
 )
 
 type Member struct {
@@ -51,11 +51,11 @@ func getjson(url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-    if resp.StatusCode == 200 {
-        return ioutil.ReadAll(resp.Body) 
-    }
+	if resp.StatusCode == 200 {
+		return ioutil.ReadAll(resp.Body)
+	}
 
-    return nil, nil
+	return nil, nil
 }
 
 func fetchCommitteesPage(i int) ([]Committee, error) {
@@ -65,9 +65,9 @@ func fetchCommitteesPage(i int) ([]Committee, error) {
 		return nil, err
 	}
 
-    if blob == nil {
-        return nil, nil
-    }
+	if blob == nil {
+		return nil, nil
+	}
 
 	var committees []Committee
 	if err := json.Unmarshal(blob, &committees); err != nil {
@@ -79,27 +79,27 @@ func fetchCommitteesPage(i int) ([]Committee, error) {
 
 func fetchCommittees() ([]Committee, error) {
 	result := make([]Committee, 0)
-	for i := 1;; i++ {
+	for i := 1; ; i++ {
 		coms, err := fetchCommitteesPage(i)
 		if err != nil {
 			return nil, err
 		}
 
-        if coms == nil {
-            break
-        }
+		if coms == nil {
+			break
+		}
 
 		for _, c := range coms {
-            if c.IsActive {
-                result = append(result, c)
-            }
-        }
+			if c.IsActive {
+				result = append(result, c)
+			}
+		}
 	}
 	return result, nil
 }
 
 func fetchDetails(i int) (CommitteeDetails, error) {
-    url := fmt.Sprintf("committees/%v?pageNumber=1", i)
+	url := fmt.Sprintf("committees/%v?pageNumber=1", i)
 	blob, err := getjson(url)
 	if err != nil {
 		return CommitteeDetails{}, err
@@ -114,7 +114,7 @@ func fetchDetails(i int) (CommitteeDetails, error) {
 }
 
 func match(val string, pat string) bool {
-    return strings.Contains(strings.ToLower(val), strings.ToLower(pat))
+	return strings.Contains(strings.ToLower(val), strings.ToLower(pat))
 }
 
 func generate(w http.ResponseWriter, query string) {
@@ -126,50 +126,50 @@ func generate(w http.ResponseWriter, query string) {
 
 	t, err := template.New("webpage").Parse(string(tmpl))
 	if err != nil {
-        log.Print(err)
+		log.Print(err)
 		http.Error(w, "failed to parse index.html", http.StatusInternalServerError)
 		return
 	}
 
-    type Result struct {
-        Index int
-        Id int
-        CommitteeName string
-        Members int
-        Match int
-        Url string
-    }
+	type Result struct {
+		Index         int
+		Id            int
+		CommitteeName string
+		Members       int
+		Match         int
+		Url           string
+	}
 	data := make([]Result, 0)
 
-    if (query != "") {
-        for _, c := range committees {
-            d := details[c.Id]
+	if query != "" {
+		for _, c := range committees {
+			d := details[c.Id]
 
-            cnt := 0
-            for _, m := range d.Members {
-                if match(m.FirstName, query) || match(m.LastName, query) || match(m.Party, query) || match(m.Canton, query) {
-                    cnt += 1
-                }
-            }
+			cnt := 0
+			for _, m := range d.Members {
+				if match(m.FirstName, query) || match(m.LastName, query) || match(m.Party, query) || match(m.Canton, query) {
+					cnt += 1
+				}
+			}
 
-            if cnt > 0 {
-                data = append(data, Result{
-                    Index: len(data) + 1,
-                    Id: c.Id,
-                    CommitteeName: c.Name,
-                    Members: len(d.Members),
-                    Match: cnt,
-                    Url: fmt.Sprintf("http://ws.parlament.ch/committees/%v", c.Id),
-                })
-            }
-        }
-    }
+			if cnt > 0 {
+				data = append(data, Result{
+					Index:         len(data) + 1,
+					Id:            c.Id,
+					CommitteeName: c.Name,
+					Members:       len(d.Members),
+					Match:         cnt,
+					Url:           fmt.Sprintf("http://ws.parlament.ch/committees/%v", c.Id),
+				})
+			}
+		}
+	}
 
 	err = t.Execute(w, data)
-    if err != nil {
-        log.Print(err)
-        http.Error(w, "failed to execute template", http.StatusInternalServerError)
-    }
+	if err != nil {
+		log.Print(err)
+		http.Error(w, "failed to execute template", http.StatusInternalServerError)
+	}
 }
 
 func index(w http.ResponseWriter, req *http.Request) {
@@ -186,7 +186,7 @@ func index(w http.ResponseWriter, req *http.Request) {
 		q, ok := req.PostForm["query"]
 		if !ok || len(q) < 1 {
 			http.Error(w, "no query value", http.StatusBadRequest)
-            return
+			return
 		}
 		log.Printf("search for %v\n", q[0])
 		generate(w, q[0])
@@ -221,13 +221,15 @@ func data(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-    var port = flag.Int("port", 8080, "http port to listen on")
-    p := fmt.Sprintf(":%v", *port)
+	var port = flag.Int("port", 8080, "http port to listen on")
+	flag.Parse()
+
+	p := fmt.Sprintf(":%v", *port)
+	log.Printf(p)
 
 	fetch()
 
 	http.HandleFunc("/data/", data)
 	http.HandleFunc("/", index)
-	log.Printf(p)
 	log.Fatal(http.ListenAndServe(p, nil))
 }
